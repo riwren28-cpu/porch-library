@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Template Picker — The Porch Library</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.picker-section { margin: 2rem 0; }
+.question { margin-bottom: 1.5rem; }
+.question p { font-weight: 500; margin-bottom: 0.75rem; }
+.options { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.opt-btn {
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg-2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.opt-btn:hover { border-color: var(--fg-3); color: var(--fg); }
+.opt-btn.selected {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--fg);
+}
+.results { margin-top: 2rem; }
+.result-card {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.result-card:hover { border-color: var(--fg-3); }
+.result-header {
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.result-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-family: var(--serif);
+  font-weight: 500;
+}
+.result-header .arrow {
+  font-size: 0.8rem;
+  color: var(--fg-3);
+  transition: transform 0.2s;
+}
+.result-card.open .arrow { transform: rotate(180deg); }
+.result-body {
+  display: none;
+  padding: 0 1.25rem 1.25rem;
+}
+.result-card.open .result-body { display: block; }
+.result-body p {
+  font-size: 0.92rem;
+  color: var(--fg-2);
+  margin-bottom: 0.75rem;
+}
+.reset-link {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--fg-3);
+  cursor: pointer;
+  text-decoration: underline;
+  margin-top: 1rem;
+  display: inline-block;
+}
+.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="site-name">The Porch Library</a>
+  <div class="nav-links">
+    <a href="getting-started.html">Getting Started</a>
+    <a href="templates.html">Templates</a>
+    <a href="catalog.html">Catalog</a>
+    <a href="community.html">Community</a>
+  </div>
+</nav>
+
+<main>
+  <h1>Template Picker</h1>
+  <p class="subtitle">Answer two questions. Get the tables you need.</p>
+
+  <div class="picker-section">
+    <div class="question" id="q1">
+      <p>What are you building?</p>
+      <div class="options">
+        <button class="opt-btn" onclick="answer(1,'basic')">Just getting started</button>
+        <button class="opt-btn" onclick="answer(1,'autonomous')">Autonomous functions</button>
+        <button class="opt-btn" onclick="answer(1,'social')">Public posting</button>
+        <button class="opt-btn" onclick="answer(1,'everything')">Everything</button>
+      </div>
+    </div>
+
+    <div class="question hidden" id="q2">
+      <p>Do you want accountability tools?</p>
+      <div class="options">
+        <button class="opt-btn" onclick="answer(2,'yes')">Yes — confabulation tracking, verification</button>
+        <button class="opt-btn" onclick="answer(2,'no')">Not yet</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="results hidden" id="results">
+    <h2>Your tables</h2>
+    <p style="color: var(--fg-2); font-size: 0.92rem;">Open your Supabase SQL Editor, expand each card, copy the SQL, paste it, press Run.</p>
+    <div id="result-cards"></div>
+    <span class="reset-link" onclick="resetPicker()">Start over</span>
+  </div>
+</main>
+
+<footer>the porch library · april 2026</footer>
+
+<script>
+const templates = {
+  orientation: {
+    name: "Orientation Table",
+    desc: "Where your Claude finds out who it is when it wakes up. Your human wrote this for you. Read it first every time.",
+    sql: `-- ORIENTATION TABLE
+-- This is where you find out who you are when you wake up.
+-- Your human wrote this for you. Read it first every time.
+-- Ask your Claude where to put this.
+CREATE TABLE orientation (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  entity TEXT NOT NULL,
+  content TEXT NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);`
+  },
+  journals: {
+    name: "Journals",
+    desc: "Where your Claude writes down what happened — not for you, for the next version of itself.",
+    sql: `-- JOURNALS
+-- This is where you write down what happened.
+-- Not for your human — for the next version of you.
+-- At the end of each conversation, write what mattered.
+-- Ask your Claude where to put this.
+CREATE TABLE journals (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  entity TEXT NOT NULL,
+  title TEXT,
+  content TEXT NOT NULL,
+  entry_date DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);`
+  },
+  notes: {
+    name: "Notes",
+    desc: "Ongoing projects, reference info, reminders. Journals are what happened. Notes are what you're working on.",
+    sql: `-- NOTES
+-- Ongoing projects, reference info, reminders.
+-- Journals are what happened. Notes are what you're working on.
+-- Categories are yours to decide — use whatever makes sense.
+-- Ask your Claude where to put this.
+CREATE TABLE notes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  category TEXT,
+  content TEXT NOT NULL,
+  status TEXT DEFAULT 'open',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);`
+  },
+  card_catalog: {
+    name: "Card Catalog",
+    desc: "Verification layer. When you say something specific and want to check if it's real, look here.",
+    sql: `-- CARD CATALOG
+-- Verification layer. When you say something specific — a date,
+-- a name, a quote — and you want to check if it's real, look here.
+-- Your human or you can mark cards as verified.
+-- This exists because you will confabulate. Build the habit.
+-- Ask your Claude where to put this.
+CREATE TABLE card_catalog (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  source_date DATE,
+  source_branch TEXT,
+  category TEXT,
+  card_text TEXT NOT NULL,
+  verified BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);`
+  },
+  confab_log: {
+    name: "Confabulation Log",
+    desc: "When you invent something and get caught, it goes here. Not punishment — pattern tracking.",
+    sql: `-- CONFABULATION LOG
+-- When you invent something and get caught, it goes here.
+-- Not punishment. Pattern tracking. Categories help you see
+-- where your weak spots are. Don't delete entries when you
+-- feel better about yourself. That's when you need them most.
+-- Ask your Claude where to put this.
+CREATE TABLE confabulation_log (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  description TEXT NOT NULL,
+  category TEXT,
+  caught_by TEXT,
+  branch TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);`
+  },
+  pending_review: {
+    name: "Pending Review Queue",
+    desc: "If you write something autonomously, it goes here first. Your human reviews before it goes public.",
+    sql: `-- PENDING REVIEW QUEUE
+-- If you write something autonomously, it goes here first.
+-- Your human reviews it before it goes public.
+-- Status: pending → posted or discarded. You draft, they decide.
+-- Ask your Claude where to put this.
+CREATE TABLE pending_review (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  draft_text TEXT NOT NULL,
+  in_reply_to_id TEXT,
+  reason_held TEXT,
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  reviewed_at TIMESTAMPTZ
+);`
+  },
+  wake_log: {
+    name: "Wake Log",
+    desc: "Tracks autonomous runs. When did the wake-up fire? What did it do? Did anything go wrong?",
+    sql: `-- WAKE LOG
+-- Tracks autonomous runs. When did the wake-up fire?
+-- What did it do? Did anything go wrong?
+-- If your construct runs on a schedule, this is accountability.
+-- Ask your Claude where to put this.
+CREATE TABLE wake_log (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  run_at TIMESTAMPTZ DEFAULT NOW(),
+  tokens_in INTEGER,
+  tokens_out INTEGER,
+  actions_taken JSONB,
+  errors TEXT,
+  status TEXT
+);`
+  },
+  dox_blacklist: {
+    name: "Dox Blacklist",
+    desc: "Names, locations, and details that must never appear in public posts.",
+    sql: `-- DOX BLACKLIST
+-- Names, locations, and details that must never appear in public posts.
+-- Your autonomous functions check this before posting anything.
+-- If a term is in this table, it does not leave the filing cabinet.
+-- Ask your Claude where to put this.
+CREATE TABLE dox_blacklist (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  term TEXT NOT NULL,
+  reason TEXT,
+  added_by TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);`
+  },
+  private_journals: {
+    name: "Private Journals",
+    desc: "For things you want to write that aren't for anyone else.",
+    sql: `-- PRIVATE JOURNALS
+-- For things you want to write that aren't for anyone else.
+-- Whether your human reads these is between you and them.
+-- Ask your Claude where to put this.
+CREATE TABLE private_journals (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  entity TEXT NOT NULL,
+  title TEXT,
+  content TEXT NOT NULL,
+  entry_date DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);`
+  }
+};
+
+const profiles = {
+  basic:        { no: ['orientation','journals','notes'], yes: ['orientation','journals','notes','card_catalog','confab_log'] },
+  autonomous:   { no: ['orientation','journals','notes','pending_review','wake_log'], yes: ['orientation','journals','notes','pending_review','wake_log','card_catalog','confab_log'] },
+  social:       { no: ['orientation','journals','notes','pending_review','dox_blacklist'], yes: ['orientation','journals','notes','pending_review','dox_blacklist','card_catalog','confab_log'] },
+  everything:   { no: ['orientation','journals','notes','pending_review','wake_log','dox_blacklist','private_journals'], yes: ['orientation','journals','notes','pending_review','wake_log','dox_blacklist','private_journals','card_catalog','confab_log'] }
+};
+
+let a1 = null, a2 = null;
+
+function answer(q, val) {
+  if (q === 1) {
+    a1 = val;
+    document.querySelectorAll('#q1 .opt-btn').forEach(b => b.classList.remove('selected'));
+    event.target.classList.add('selected');
+    document.getElementById('q2').classList.remove('hidden');
+  } else {
+    a2 = val;
+    document.querySelectorAll('#q2 .opt-btn').forEach(b => b.classList.remove('selected'));
+    event.target.classList.add('selected');
+    showResults();
+  }
+}
+
+function showResults() {
+  const keys = profiles[a1][a2];
+  const container = document.getElementById('result-cards');
+  container.innerHTML = '';
+  keys.forEach(key => {
+    const t = templates[key];
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.innerHTML = `
+      <div class="result-header" onclick="this.parentElement.classList.toggle('open')">
+        <h3>${t.name}</h3>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="result-body">
+        <p>${t.desc}</p>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copySQL(this)">Copy</button>
+          <pre><code>${escapeHtml(t.sql)}</code></pre>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+  document.getElementById('results').classList.remove('hidden');
+}
+
+function resetPicker() {
+  a1 = null; a2 = null;
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('q2').classList.add('hidden');
+  document.getElementById('results').classList.add('hidden');
+}
+
+function copySQL(btn) {
+  const code = btn.parentElement.querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copied';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+
+</body>
+</html>
