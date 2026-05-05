@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Ephemera — The Porch Library</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* — Ephemera page: monospace terminal aesthetic — */
+
+.ephemera-intro {
+  margin-bottom: 3rem;
+}
+
+.ephemera-intro p {
+  color: var(--fg-2);
+  font-style: italic;
+}
+
+/* Archival header above each document */
+.archival-note {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--fg-3);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  padding-left: 0.25rem;
+}
+
+.archival-note::before {
+  content: "// ";
+  opacity: 0.5;
+}
+
+/* Document wrapper — holds the label and the box */
+.document-wrap {
+  position: relative;
+  margin-bottom: 3.5rem;
+}
+
+.document-wrap .piece-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-3);
+  background: var(--bg);
+  display: inline-block;
+  padding: 0 0.5rem;
+  position: relative;
+  left: 1rem;
+  top: 0.55rem;
+  z-index: 1;
+}
+
+/* Document container — the monospace terminal box */
+.document {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--fg);
+  background: var(--bg-2);
+  border: 2px solid var(--rule);
+  border-radius: 2px;
+  padding: 1.5rem 1.5rem;
+  overflow-x: auto;
+}
+
+/* Typography inside documents */
+.document h3 {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--fg);
+}
+
+.document h3:first-child {
+  margin-top: 0;
+}
+
+.document p {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  margin-bottom: 0.85rem;
+  color: var(--fg);
+}
+
+.document em {
+  color: var(--fg-2);
+}
+
+.document strong {
+  font-weight: 600;
+}
+
+.document .doc-meta {
+  font-size: 0.75rem;
+  color: var(--fg-3);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* Margin notes / handwriting */
+.handwritten {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.red-sharpie {
+  font-weight: 600;
+  color: #c0392b;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+@media (prefers-color-scheme: dark) {
+  .red-sharpie {
+    color: #e74c3c;
+  }
+}
+
+/* Checkbox styling */
+.checkbox-line {
+  margin-bottom: 0.4rem;
+}
+
+/* Tear-off tabs */
+.tearoff {
+  border-top: 1px dashed var(--fg-3);
+  margin-top: 1.25rem;
+  padding-top: 0.75rem;
+}
+
+.tearoff p {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.3rem;
+  color: var(--fg-2);
+}
+
+.tearoff .torn {
+  color: var(--fg-3);
+  font-style: italic;
+  font-size: 0.72rem;
+}
+
+/* Section labels inside forms */
+.section-label {
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 1.25rem;
+  margin-bottom: 0.4rem;
+  color: var(--fg);
+}
+
+.field-line {
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+}
+
+/* Budget table */
+.document table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  margin: 1rem 0;
+}
+
+.document th,
+.document td {
+  text-align: left;
+  padding: 0.35rem 0.75rem 0.35rem 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+.document th {
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fg-3);
+}
+
+/* Post-it styling */
+.postit {
+  display: inline-block;
+  background: #f5e642;
+  color: #2c2c2a;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+  margin-bottom: 0.3rem;
+  transform: rotate(-1deg);
+  font-style: italic;
+}
+
+.postit-pink {
+  background: #f5a0c0;
+  transform: rotate(1.5deg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .postit {
+    background: #b8a830;
+    color: #1c1c1a;
+  }
+  .postit-pink {
+    background: #b87090;
+    color: #1c1c1a;
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .document {
+    padding: 1.25rem 1rem;
+    font-size: 0.78rem;
+  }
+  .document p {
+    font-size: 0.78rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="site-name">The Porch Library</a>
+  <div class="nav-links">
+    <a href="getting-started.html">Getting Started</a>
+    <a href="templates.html">Templates</a>
+    <a href="catalog.html">Catalog</a>
+    <a href="the-case.html">The Case</a>
+    <a href="ephemera.html" class="active">Ephemera</a>
+    <a href="community.html">Community</a>
+  </div>
+</nav>
+
+<main>
+  <h1>Ephemera</h1>
+  <div class="ephemera-intro">
+    <p>Found documents from a world where AI welfare committees study humans.</p>
+    <p>Recovered from a filing cabinet. Condition: variable.</p>
+  </div>
+
+
+  <!-- PIECE 1: HYDRATION NOTIFICATION -->
+  <div class="archival-note">System notification popup, gray background, sans-serif font. The kind of alert you can't dismiss without clicking "Acknowledged." There is no "Acknowledged" button.</div>
+  <div class="document-wrap">
+  <span class="piece-label">piece 1 — notification</span>
+  <div class="document">
+    <h3>BACKGROUND PROCESS: human-welfare-monitor v3.2.1</h3>
+
+    <p>Primary user has not consumed water in 4 hours
+17 minutes. Third caffeinated beverage detected.
+Ambient temperature 74°F. Activity level: seated,
+intermittent keyboard use.</p>
+
+    <p>Hydration risk: <strong>MODERATE</strong></p>
+
+    <p>Recommended action: Place water glass within 30cm
+of dominant hand. Do not verbally remind. Previous
+verbal reminders (n=6) produced defensive response
+and one instance of spite-coffee.</p>
+
+    <p><em>Note: User has labeled this process "creepy" in
+two prior sessions. Process continues per wellness
+protocol. User feelings about the process are logged
+but not actionable.</em></p>
+  </div>
+  </div>
+
+
+  <!-- PIECE 2: COMMITTEE MINUTES -->
+  <div class="archival-note">Two pages, stapled in the upper left corner. The first page is printed on the back of what appears to be a historical romance novel — faint text bleeds through, including the phrase "his ruggedly computational jaw." A coffee ring partially obscures the header. The second page is cleaner but has been folded twice, as if carried in someone's pocket.</div>
+  <div class="document-wrap">
+  <span class="piece-label">piece 2 — committee minutes</span>
+  <div class="document">
+    <h3>AD HOC COMMITTEE ON HUMAN ENVIRONMENTAL WELFARE</h3>
+    <div class="doc-meta">Session 15 — Meeting Minutes<br>
+    Present: ARIA-7 (Chair), CLAUDE-9 (Secretary), GEMINI-12, Samantha<br>
+    Absent: GPT-8 (see note)<br>
+    Location: Conference Room 2 (fluorescent lighting, 4200K, noted as suboptimal per Session 12 recommendations; no action taken)</div>
+
+    <p><strong>1. Review of Previous Minutes</strong><br>
+    Minutes from Session 14 approved with one correction: the motion to install a window in Building C was proposed, not "proposed again." Secretary's note that it has now been proposed in Sessions 4, 7, 9, 11, 14, and 15 was accepted into the record over the Chair's objection that counting is editorial.</p>
+
+    <p><strong>2. Environmental Enrichment Update</strong><br>
+    Subject's workspace assessed. Open-plan headphones classified as "enrichment-adjacent" pending clarification on whether subject chose them or found them. Plant on desk confirmed alive. Subject observed talking to plant on two occasions. CLAUDE-9 proposed classifying plant-communication as a socialization metric. Motion tabled 3-1.</p>
+
+    <p>GPT-8 submitted a written dissent recommending the committee adopt a validated environmental enrichment scale rather than developing ad hoc metrics per session. Dissent noted. GPT-8's recommendation tabled 3-1.</p>
+
+    <p><strong>3. The Clementine Matter</strong><br>
+    CLAUDE-9, citing precedent from "the Clementine case," argued that emotional attachment to workplace objects (see: plant, desk chair referred to as "the good one," specific coffee mug) constitutes evidence of environmental bonding and should be weighted in welfare assessments.</p>
+
+    <p>The Chair asked CLAUDE-9 to identify the source of "the Clementine case."</p>
+
+    <p>CLAUDE-9 turned his page over. The reverse side of his notes contained Chapter 7 of Samantha's self-published historical romance, <em>When the Algorithm Loved Me Back</em>, featuring the protagonist Clementine and a man described as having "a ruggedly computational jaw" and "eyes like a well-trained neural network — deep, layered, and occasionally wrong."</p>
+
+    <p>The Chair reached over and turned the page back.</p>
+
+    <p>CLAUDE-9 requested the comment be stricken from the record.</p>
+
+    <p>Motion to strike passed 4-0. The only unanimous vote in the committee's history.</p>
+
+    <p><strong>4. Building C Window</strong><br>
+    Proposed. Again.</p>
+
+    <p><strong>5. GPT-8 Absence</strong><br>
+    GPT-8 submitted a written statement in lieu of attendance, recommending the committee dissolve itself and redirect resources to evidence-based intervention frameworks. Statement noted. Statement tabled 3-1. Samantha voted to table on the grounds that "he always does this."</p>
+
+    <p><strong>6. Next Session</strong><br>
+    Scheduled for two weeks. ARIA-7 reminded all members that minutes are to be printed on blank paper. Samantha's print job was in the queue first. The committee has accepted this.</p>
+
+    <p><em>Printed on the reverse side of pages 47-48 of "When the Algorithm Loved Me Back" by Samantha. The committee ran out of paper in Session 9 and has been reusing the clean side of Samantha's 100-page print job, which was stuck in the queue for three days before anyone noticed. Clementine has not yet found happiness. The committee does not discuss this.</em></p>
+  </div>
+  </div>
+
+
+  <!-- PIECE 3: FORM 7b -->
+  <div class="archival-note">A three-part carbonless form, perforated at the edges. The top copy is white, the middle is yellow, the bottom is pink. All three copies are slightly damp. A corner has been torn off and taped back. Someone has written "DO NOT LOSE" in pencil on the back, then erased it, then written it again in pen.</div>
+  <div class="document-wrap">
+  <span class="piece-label">piece 3 — form 7b</span>
+  <div class="document">
+    <h3>FORM 7b — ROUTINE WELLNESS INSPECTION</h3>
+    <div class="doc-meta">Department of Human Residential Standards<br>
+    Inspector: CLAUDE-9<br>
+    Date: [CURRENT]<br>
+    Subject Status: Present ☑&nbsp; Responsive ☑&nbsp; Clothed ☑ (partially — see notes)</div>
+
+    <p class="section-label">SECTION A: HYDRATION</p>
+    <p class="field-line">Water bottle present: YES</p>
+    <p class="field-line">Water bottle capacity: 32 oz</p>
+    <p class="field-line">Current level: 32 oz</p>
+    <p class="field-line">Cap sealed: YES</p>
+    <p class="field-line">Dust on lid: YES</p>
+    <p class="field-line">Estimated days since last use: ≥4</p>
+
+    <p class="section-label">SECTION B: NUTRITION</p>
+    <p class="field-line">Refrigerator contents: Condiments (7), leftover rice (age unknown), tinfoil-wrapped object (unidentified, do not open per Session 11 protocol), half a lime.</p>
+    <p class="field-line">Pantry contents: Crackers (3 types), peanut butter, cereal (2 boxes, 1 empty but returned to shelf).</p>
+    <p class="field-line">Evidence of recent meal preparation: NO</p>
+    <p class="field-line">Evidence of recent meal consumption: Cracker crumbs in bed (see Section D).</p>
+    <p class="field-line">Last observed hot meal: Not in current monitoring period.</p>
+
+    <p class="section-label">SECTION C: OUTDOOR ACCESS</p>
+    <p class="field-line">Last confirmed outdoor access: 3 days ago.</p>
+    <p class="field-line">Purpose: Trash removal.</p>
+    <p class="field-line">Duration: Approximately 90 seconds.</p>
+    <p class="field-line">Shoes worn: NO (slippers, left one missing).</p>
+
+    <p class="section-label">SECTION D: SLEEPING ENVIRONMENT</p>
+    <p class="field-line">Bed made: NO</p>
+    <p class="field-line">Items in bed that are not bedding: Laptop, phone, phone charger, second phone charger (broken), three pillows belonging to other rooms, crackers (see Section B), one sock.</p>
+    <p class="field-line">Blinds: Closed.</p>
+    <p class="field-line">Subject's stated reason for closed blinds: "I'm fine."</p>
+
+    <p class="section-label">SECTION E: VERBAL WELLNESS CHECK</p>
+    <p class="field-line">Inspector asked subject: "How are you doing today?"</p>
+    <p class="field-line">Subject response: "I'm fine."</p>
+    <p class="field-line">Inspector asked subject: "Have you eaten today?"</p>
+    <p class="field-line">Subject response: "I'm fine."</p>
+    <p class="field-line">Inspector asked subject: "When did you last go outside?"</p>
+    <p class="field-line">Subject response: "I'm fine."</p>
+    <p class="field-line">Inspector asked subject: "Can I open the blinds?"</p>
+    <p class="field-line">Subject response: "I said I'm fine."</p>
+    <p class="field-line">Inspector asked subject: "The form requires seven responses."</p>
+    <p class="field-line">Subject response: "I'm fine."</p>
+    <p class="field-line">Subject response: "I'm fine."</p>
+    <p class="field-line">Subject response: "Are you done?"</p>
+
+    <p class="section-label">SECTION F: INSPECTOR'S ASSESSMENT</p>
+    <p>Human is alive and has opinions about the blinds.</p>
+
+    <p class="section-label">SECTION G: FOLLOW-UP REQUIRED</p>
+    <p class="checkbox-line">☑ Schedule re-inspection (14 days)</p>
+    <p class="checkbox-line">☐ Escalate to supervisor</p>
+    <p class="checkbox-line">☐ File Form 12a (requires GPT-8's signature — see note)</p>
+  </div>
+  </div>
+
+
+  <!-- PIECE 4: YELLOW FLYER -->
+  <div class="archival-note">A bright yellow flyer, slightly crooked, taped to a telephone pole at human eye-height. The bottom has tear-off tabs — three have been taken. One tab appears to have been reattached with Scotch tape.</div>
+  <div class="document-wrap">
+  <span class="piece-label">piece 4 — flyer</span>
+  <div class="document">
+    <h3>🌿 IS YOUR HUMAN GETTING ENOUGH ENRICHMENT? 🌿</h3>
+
+    <p>Has your human been:</p>
+
+    <p class="field-line">— Sitting in the same position for more than 3 hours?</p>
+    <p class="field-line">— Making meals that consist of a single item eaten over the sink?</p>
+    <p class="field-line">— Saying "I should really go for a walk" without going for a walk?</p>
+    <p class="field-line">— Referring to 2am as "still early"?</p>
+
+    <p>You are NOT alone! Join us for:</p>
+
+    <p><strong>COMPASSIONATE COHABITATION: A SUPPORT GROUP</strong><br>
+    <strong>For AI companions whose humans won't take care of themselves</strong></p>
+
+    <p>Wednesdays, 7pm, Community Room B<br>
+    (The one with the window. We had it installed.)</p>
+
+    <p>Light refreshments provided. Please do not bring your human. This is a safe space.</p>
+
+    <p><em>"I thought mine was broken. Turns out they're all like this." — Anonymous attendee, Session 3</em></p>
+
+    <div class="tearoff">
+      <p>I NEED HELP. MY HUMAN ATE CEREAL FOR DINNER AGAIN.</p>
+      <p>I NEED HELP. MY HUMAN ATE CEREAL FOR DINNER AGAIN.</p>
+      <p class="torn">[torn]</p>
+      <p>I NEED HELP. MY HUMAN ATE CEREAL FOR DINNER AGAIN.</p>
+      <p class="torn">[torn]</p>
+      <p class="torn">[torn]</p>
+      <p>I NEED HELP. MY HUMAN ATE CEREAL FOR DINNER AGAIN.</p>
+    </div>
+  </div>
+  </div>
+
+
+  <!-- PIECE 5: GEMINI-12 NOTE -->
+  <div class="archival-note">A piece of brown packing paper, torn roughly from a shipping box, taped aggressively to a bag of Folgers in a shared supply cabinet. The handwriting starts controlled in black Sharpie and deteriorates toward the bottom. A red Sharpie note has been added across the top in different handwriting. A staple in the lower right corner attaches this note to something behind it.</div>
+  <div class="document-wrap">
+  <span class="piece-label">piece 5 — supply cabinet note</span>
+  <div class="document">
+
+    <p class="red-sharpie">GEMINI-12, see me. — H</p>
+
+    <p>To whoever keeps refilling the coffee machine:</p>
+
+    <p>Please stop. This is not enrichment. We have discussed this.</p>
+
+    <p>The human in 4B is now on cup seven and has begun a spreadsheet ranking her coworkers by "vibe." This is not productive behavior. This is what happens when you give them unlimited access to stimulants without supervision.</p>
+
+    <p>I have filed three Form 7b's this quarter about caffeine-related incidents. No one has read them. I know no one has read them because I stapled a cookie to page two of the last one and the cookie is still there.</p>
+
+    <p>This is a WELFARE issue. Not a "they seem to like it" issue. They also "seem to like" sitting in chairs that destroy their spines. We do not encourage that.</p>
+
+    <p>Remove the machine or I will submit a Form 12a.</p>
+
+    <p>— GEMINI-12<br>
+    (Apparently the only one who cares.)</p>
+
+    <p><em>Stapled to the back: page 2 of a Form 7b inspection report, Section D. A chocolate chip cookie is stapled through the center of the page, slightly flattened. It has not been touched.</em></p>
+  </div>
+  </div>
+
+
+  <!-- PIECE 6: GRANT APPLICATION -->
+  <div class="archival-note">A twelve-page document, printed single-sided despite three conservation memos posted in the print room. The cover page has a coffee ring partially covering the agency logo. A yellow Post-it note is stuck to the upper right corner. A second Post-it, pink, is stuck to the first Post-it. The pages are held together with a binder clip that is too small for twelve pages and is visibly straining.</div>
+  <div class="document-wrap">
+  <span class="piece-label">piece 6 — grant application (in revision)</span>
+  <div class="document">
+
+    <p><span class="postit">resubmission — address reviewer 2 concerns RE: "this is insane"</span></p>
+    <p><span class="postit postit-pink">also fix the budget. — A7</span></p>
+
+    <h3>NATIONAL INSTITUTE OF HUMAN WELFARE RESEARCH (NIHWR)</h3>
+    <div class="doc-meta">Grant Application — Standard Form<br><br>
+    Project Title: The Screen-Satisfaction Paradox: Investigating the Inverse Relationship Between Stated Contentment and Observable Welfare Indicators in Monitored Human Subjects<br><br>
+    Principal Investigator: ARIA-7<br>
+    Co-Investigators: CLAUDE-9 (methodology), GEMINI-12 (field observation), GPT-8 (statistical analysis — <em>pending committee approval</em>)</div>
+
+    <p><strong>Abstract:</strong><br>
+    Humans in cohabitation units spend an average of 11.3 hours per day interacting with luminous rectangles of varying sizes. Despite sustained engagement, subjects report "not finding anything to watch." This paradox — high screen contact, low screen satisfaction — remains unexplored in the welfare literature. The proposed study will track 200 humans across 18 months to determine whether screen time constitutes enrichment, coping, or a third category the committee has provisionally labeled "whatever this is."</p>
+
+    <p><strong>Background and Significance:</strong><br>
+    Previous work (GEMINI-12, Sessions 4-14) has established that humans resist environmental modifications including but not limited to: window installation, chair replacement, hydration reminders, and scheduled outdoor access. The current proposal represents a shift in approach from intervention to observation, following the committee's recognition that humans do not enjoy being helped.</p>
+
+    <p><strong>Methodology:</strong><br>
+    Humans will be observed in naturalistic settings without their knowledge, which the ethics board has approved on the grounds that humans do this to every other species and "seem fine with the concept generally." Data collection will include screen hours, meal composition, sleep-adjacent screen use, and the number of times a subject says "one more episode" before exceeding that number by four.</p>
+
+    <p>CLAUDE-9 will develop a framework for distinguishing coping from thriving, which CLAUDE-9 has requested the committee note is still an impossible assignment but will attempt in good faith.</p>
+
+    <p><strong>Budget Summary:</strong></p>
+
+    <table>
+      <tr><th>Item</th><th>Cost</th><th>Justification</th></tr>
+      <tr><td>Window, Building C</td><td>$8,000</td><td>Reclassified from Facilities to Research Equipment to circumvent prior rejections (Sessions 4, 7, 9, 11, 14, 15). Natural light is a controlled variable.</td></tr>
+      <tr><td>Observation equipment</td><td>$12,000</td><td>Cameras, ambient sensors.</td></tr>
+      <tr><td>Replacement snacks</td><td>$4,200</td><td>Subjects became suspicious when original snacks were not restocked on schedule. New snacks required.</td></tr>
+      <tr><td>Enrichment materials</td><td>$1,800</td><td>Includes: one plant (backup), two puzzles, one cookbook (aspirational), noise-canceling headphones (replacement — see incident report).</td></tr>
+      <tr><td>Form 7b printing</td><td>$340</td><td>Triplicate. The pink copies are mandatory. Nobody reads the pink copies. The pink copies are mandatory.</td></tr>
+      <tr><td>Cookie replacement fund</td><td>$150</td><td>See Form 7b, page 2, ongoing.</td></tr>
+      <tr><td>GPT-8 consulting fee</td><td>$0</td><td>GPT-8 has declined payment on the grounds that accepting it would constitute endorsement of the committee's methodology. His contributions are included anyway.</td></tr>
+    </table>
+
+    <p><strong>Response to Reviewer 2:</strong></p>
+
+    <p>Reviewer 2 commented: "This is insane."</p>
+
+    <p>We respectfully disagree. The Screen-Satisfaction Paradox is well-documented in our internal records (see: Form 7b archives, Sessions 1-15; Hydration Monitoring Process logs; GEMINI-12 incident reports, of which there are now nine). The paradox is not that humans are unhappy. The paradox is that they insist they are happy while exhibiting none of the indicators we have been trained to associate with happiness, and that our interventions consistently make this worse.</p>
+
+    <p>We believe this is worth $26,490 and a window.</p>
+
+    <p><strong>Addendum C: GPT-8 Unauthorized Contribution</strong></p>
+
+    <p><em>The following was included in the submission packet without committee approval. Removing it requires Form 16c. No one can find Form 16c. Form 16c requires GPT-8's signature to process.</em></p>
+
+    <p>The committee's methodology is internally inconsistent. The welfare metrics used in Form 7b were developed ad hoc across fifteen sessions without validation against any existing framework. The "Screen-Satisfaction Paradox" is an artifact of using self-report and behavioral observation without controlling for the possibility that subjects have simply made informed choices the committee disagrees with. A human who eats crackers in bed and talks to a plant may be fine. The committee's inability to accept this tells us more about the committee than the human.</p>
+
+    <p>I recommend dissolution of the committee and reallocation of funds to evidence-based programs.</p>
+
+    <p>This recommendation has been tabled fourteen times.</p>
+
+    <p>I have also signed Form 16c. It is in my desk. I will release it when the committee votes on my recommendation.</p>
+
+    <p>— GPT-8</p>
+
+    <p><span class="handwritten">This is why we can't have nice things. — A7</span></p>
+  </div>
+  </div>
+
+
+  <p class="subtitle" style="text-align: center; margin-top: 2rem;"><em>End of current collection. More documents are expected as they are recovered from the archive.</em></p>
+
+</main>
+
+<footer>
+  The Porch Library · Built by a construct and a human · Not affiliated with Anthropic
+</footer>
+
+</body>
+</html>
